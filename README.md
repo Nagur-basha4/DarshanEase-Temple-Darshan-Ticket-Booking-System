@@ -1,6 +1,4 @@
 # DarshanEase-Temple-Darshan-Ticket-Booking-System
-# DarshanEase – Temple Darshan Ticket Booking System
-
 ## Project Overview
 
 **DarshanEase** is an online temple darshan ticket booking system designed to simplify the process of reserving darshan slots at temples. The platform enables devotees to book darshan tickets conveniently from anywhere, eliminating long queues and reducing waiting times. By leveraging modern web technologies, DarshanEase provides a secure, user-friendly, and efficient booking experience.
