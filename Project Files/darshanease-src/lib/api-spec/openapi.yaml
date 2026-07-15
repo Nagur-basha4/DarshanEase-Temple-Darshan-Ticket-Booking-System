@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: DarshanEase - Temple Darshan Ticket Booking API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: temples
+    description: Temple operations
+  - name: poojaTypes
+    description: Pooja type operations
+  - name: slots
+    description: Time slot operations
+  - name: bookings
+    description: Booking operations
+  - name: dashboard
+    description: Dashboard statistics
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /temples:
+    get:
+      operationId: listTemples
+      tags: [temples]
+      summary: List all temples
+      parameters:
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of temples
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Temple"
+
+  /temples/{id}:
+    get:
+      operationId: getTemple
+      tags: [temples]
+      summary: Get temple by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Temple details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Temple"
+        "404":
+          description: Temple not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /temples/{id}/pooja-types:
+    get:
+      operationId: listTemplePoojaTypes
+      tags: [temples]
+      summary: Get pooja types for a temple
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of pooja types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PoojaType"
+
+  /pooja-types/{id}:
+    get:
+      operationId: getPoojaType
+      tags: [poojaTypes]
+      summary: Get pooja type by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pooja type details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoojaType"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /slots:
+    get:
+      operationId: listSlots
+      tags: [slots]
+      summary: Get available time slots for a pooja type
+      parameters:
+        - name: poojaTypeId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSlot"
+
+  /bookings:
+    get:
+      operationId: listBookings
+      tags: [bookings]
+      summary: List bookings by contact info
+      parameters:
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: phone
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a new darshan booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Validation error or insufficient seats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get booking by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}/cancel:
+    patch:
+      operationId: cancelBooking
+      tags: [bookings]
+      summary: Cancel a booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /cities:
+    get:
+      operationId: listCities
+      tags: [temples]
+      summary: List all cities with temples
+      responses:
+        "200":
+          description: List of cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityInfo"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Temple:
+      type: object
+      required: [id, name, location, city, state, description, imageUrl]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        deity:
+          type: ["string", "null"]
+        rating:
+          type: ["number", "null"]
+        totalBookings:
+          type: integer
+
+    PoojaType:
+      type: object
+      required: [id, templeId, name, description, durationMinutes, pricePerPerson]
+      properties:
+        id:
+          type: integer
+        templeId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        durationMinutes:
+          type: integer
+        pricePerPerson:
+          type: number
+        maxPersons:
+          type: integer
+        isSpecial:
+          type: boolean
+
+    TimeSlot:
+      type: object
+      required: [id, poojaTypeId, date, startTime, endTime, availableSeats, totalSeats]
+      properties:
+        id:
+          type: integer
+        poojaTypeId:
+          type: integer
+        date:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        availableSeats:
+          type: integer
+        totalSeats:
+          type: integer
+
+    BookingInput:
+      type: object
+      required: [slotId, devoteeName, phone, email, numPersons]
+      properties:
+        slotId:
+          type: integer
+        devoteeName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        numPersons:
+          type: integer
+        specialRequests:
+          type: string
+
+    Booking:
+      type: object
+      required: [id, slotId, devoteeName, phone, email, numPersons, totalAmount, status, bookingRef, createdAt]
+      properties:
+        id:
+          type: integer
+        slotId:
+          type: integer
+        devoteeName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        numPersons:
+          type: integer
+        totalAmount:
+          type: number
+        status:
+          type: string
+          enum: [confirmed, cancelled, completed]
+        bookingRef:
+          type: string
+        specialRequests:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        slot:
+          $ref: "#/components/schemas/TimeSlot"
+        poojaType:
+          $ref: "#/components/schemas/PoojaType"
+        temple:
+          $ref: "#/components/schemas/Temple"
+
+    DashboardStats:
+      type: object
+      required: [totalTemples, totalBookingsToday, upcomingBookings, popularTemples]
+      properties:
+        totalTemples:
+          type: integer
+        totalBookingsToday:
+          type: integer
+        upcomingBookings:
+          type: integer
+        totalRevenue:
+          type: number
+        popularTemples:
+          type: array
+          items:
+            $ref: "#/components/schemas/Temple"
+        recentBookings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Booking"
+
+    CityInfo:
+      type: object
+      required: [city, state, templeCount]
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+        templeCount:
+          type: integer
